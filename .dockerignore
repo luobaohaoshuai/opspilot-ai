@@ -1,0 +1,8 @@
+target
+frontend
+.idea
+*.iml
+.git
+*.log
+*.rdb
+.env

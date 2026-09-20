@@ -1,0 +1,23 @@
+target/
+.idea/
+*.iml
+*.class
+*.jar
+*.log
+.env
+.env.*
+!.env.example
+*.rdb
+.vscode/
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+qa-screenshots/
+frontend/qa-screenshots/
+
+# Local implementation and QA notes are kept outside the public portfolio snapshot.
+AGENT_DEVICE_ROUTING_FIX.md
+FRONTEND_BACKEND_STARTUP.md
+design-qa.md
+frontend/design-qa.md

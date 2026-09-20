@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: opspilot-ai
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  flyway:
+    baseline-on-migrate: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+deepseek:
+  api:
+    key: ${DEEPSEEK_API_KEY}
+    base-url: https://api.deepseek.com
+    model: deepseek-chat
+
+zhipu:
+  api:
+    key: ${ZHIPU_API_KEY}
+    base-url: https://open.bigmodel.cn/api/paas/v4
+    model: embedding-3
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION_MS:86400000}
+
+app:
+  web-search:
+    enabled: true
+    endpoint: https://api.duckduckgo.com/
+    timeout-ms: 6000
+    max-results: 5
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto

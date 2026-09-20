@@ -1,0 +1,240 @@
+{
+  "info": {
+    "name": "OpsPilot AI - 企业 AIoT 运维智能体平台",
+    "description": "设备运维 + 告警管理 + ESP32 命令队列 + RAG 文档问答 + Agent 排障助手",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "jwt",
+      "value": ""
+    },
+    {
+      "key": "deviceToken",
+      "value": "demo-device-token"
+    }
+  ],
+  "item": [
+    {
+      "name": "认证",
+      "item": [
+        {
+          "name": "登录 admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"YOUR_ADMIN_PASSWORD\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ESP32 硬件闭环",
+      "item": [
+        {
+          "name": "设备上报温湿度 + 健康字段",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Device-Token", "value": "{{deviceToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceCode\": \"ESP32-001\",\n  \"temperature\": 36.8,\n  \"humidity\": 61.2,\n  \"rssi\": -58,\n  \"uptimeSeconds\": 7200,\n  \"firmwareVersion\": \"1.0.0\"\n}"
+            },
+            "url": "{{baseUrl}}/device/report"
+          }
+        },
+        {
+          "name": "查询设备配置",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/device/ESP32-001/config"
+          }
+        },
+        {
+          "name": "更新阈值与采样策略",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"temperatureThreshold\": 30,\n  \"humidityMinThreshold\": 20,\n  \"humidityMaxThreshold\": 80,\n  \"sampleIntervalSeconds\": 10,\n  \"inspectionIntervalMinutes\": 30,\n  \"displayMode\": \"ALERT\"\n}"
+            },
+            "url": "{{baseUrl}}/device/ESP32-001/config"
+          }
+        },
+        {
+          "name": "人工下发 OLED 提示",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commandType\": \"DISPLAY_MESSAGE\",\n  \"payload\": \"正在巡检，请检查散热\"\n}"
+            },
+            "url": "{{baseUrl}}/device/ESP32-001/commands"
+          }
+        },
+        {
+          "name": "查询命令历史",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/device/ESP32-001/commands"
+          }
+        },
+        {
+          "name": "ESP32 拉取下一条命令",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Device-Token", "value": "{{deviceToken}}" }
+            ],
+            "url": "{{baseUrl}}/device/ESP32-001/commands/next"
+          }
+        },
+        {
+          "name": "ESP32 回传命令执行结果",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Device-Token", "value": "{{deviceToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": true,\n  \"resultMessage\": \"屏幕消息已显示\"\n}"
+            },
+            "url": "{{baseUrl}}/device/ESP32-001/commands/1/ack"
+          }
+        }
+      ]
+    },
+    {
+      "name": "设备与告警",
+      "item": [
+        {
+          "name": "查询设备列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/device/list"
+          }
+        },
+        {
+          "name": "查询遥测历史",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/device/ESP32-001/data"
+          }
+        },
+        {
+          "name": "查询告警历史",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/device/ESP32-001/alarms"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent 多工具",
+      "item": [
+        {
+          "name": "查趋势",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"message\":\"ESP32-001 最近6小时温度是不是在升高\",\"memoryId\":\"demo-hardware\"}" },
+            "url": "{{baseUrl}}/agent/chat"
+          }
+        },
+        {
+          "name": "调阈值",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"message\":\"把 ESP32-001 高温阈值调到30度\",\"memoryId\":\"demo-hardware\"}" },
+            "url": "{{baseUrl}}/agent/chat"
+          }
+        },
+        {
+          "name": "下发屏幕提示",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"message\":\"让 ESP32-001 屏幕显示正在巡检\",\"memoryId\":\"demo-hardware\"}" },
+            "url": "{{baseUrl}}/agent/chat"
+          }
+        },
+        {
+          "name": "完整诊断",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"message\":\"帮我诊断 ESP32-001 的高温问题\",\"memoryId\":\"demo-hardware\"}" },
+            "url": "{{baseUrl}}/agent/chat"
+          }
+        }
+      ]
+    },
+    {
+      "name": "员工管理 CRUD",
+      "item": [
+        {
+          "name": "查询全部员工",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" }
+            ],
+            "url": "{{baseUrl}}/employee"
+          }
+        }
+      ]
+    }
+  ]
+}

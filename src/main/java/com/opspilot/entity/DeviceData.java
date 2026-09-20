@@ -1,0 +1,34 @@
+package com.opspilot.entity;
+
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@TableName("device_data")
+public class DeviceData {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    private Long deviceId;
+
+    private BigDecimal temperature;
+
+    private BigDecimal  humidity;
+
+    private Integer rssi;
+
+    private Long uptimeSeconds;
+
+    private String firmwareVersion;
+
+    private LocalDateTime reportTime;
+
+
+
+}
